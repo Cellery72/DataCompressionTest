@@ -81,16 +81,18 @@
             // 
             // ofDialog
             // 
-            this.ofDialog.FileName = "ofDialog";
+            this.ofDialog.Filter = "Image Files (*.bmp, *.png, *.jpg)|*.bmp;*.jpg;*.png";
             // 
             // pbCurrentImage
             // 
+            this.pbCurrentImage.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.pbCurrentImage.Location = new System.Drawing.Point(461, 12);
             this.pbCurrentImage.Name = "pbCurrentImage";
             this.pbCurrentImage.Size = new System.Drawing.Size(150, 150);
             this.pbCurrentImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pbCurrentImage.TabIndex = 3;
             this.pbCurrentImage.TabStop = false;
+            this.pbCurrentImage.Click += new System.EventHandler(this.btnUpload_Click);
             // 
             // btnUpload
             // 
