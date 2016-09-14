@@ -11,14 +11,11 @@ using System.Windows.Forms;
 
 namespace DataCompressionTest
 {
-    // step 1 
-    // convert image to byte [], update lbl current image and lbl byte[] 
-    // step 2 compress byte array and update lbl
-    // step 3 change picturebox to represent the uploaded image
-
     public partial class MainForm : Form
     {
-        private double imageSize, byteSize, compressedByteSize, quickLZCompressionSize;
+        // define private variables
+        private double imageSize;
+        private byte[] normalByteArrayGIF, normalByteArrayJPG, normalByteArrayBMP, normalByteArrayPNG;
         private Image currentImage = null;
         
         public MainForm()
@@ -29,15 +26,24 @@ namespace DataCompressionTest
         // Event Handlers
         private void btnUpload_Click(object sender, EventArgs e)
         {
+            // Show Dialog and hope for response
             DialogResult result = ofDialog.ShowDialog();
             if (result == DialogResult.OK)
             {
                 try
                 {
-                    // set the currentImage to that opened in the file dialog
+                    // set the currentImage to that opened in the file dialog, populate the Image Size label
                     currentImage = Image.FromFile(ofDialog.FileName);
+                    
+                    // Update teh file name
+                    lblFile.Text = ofDialog.SafeFileName;
                     imageSize = new FileInfo(ofDialog.FileName).Length;
+
+                    // Generate the values based on the currentImage
                     GenerateValues(currentImage);
+                    
+                    // Update the values
+                    UpdateValues();
                 }
                 catch (Exception ex)
                 {                    
@@ -56,33 +62,42 @@ namespace DataCompressionTest
         // and CLEAR the exsisting values        
         private void ClearValues()
         {
-            lblCompressedByte.Text = "n/a";
-            lblCurrentByte.Text = "n/a";
-            lblCurrentImage.Text = "n/a";
+            foreach(Control c in Controls)
+            {
+                if (c.Tag!= null && c.Tag == "clear")
+                {
+                    var label = (Label)c;
+                    label.Text = "n/a";
+                }
+            }
             pbCurrentImage.BackgroundImage = null;
         }
         private void UpdateValues()
         {
             // Update values of Labels
             lblCurrentImage.Text = Utility.FormatValue(imageSize);
-            lblCurrentByte.Text = Utility.FormatValue(byteSize);
-            lblCompressedByte.Text = Utility.FormatValue(compressedByteSize);
-            lblQuickLZ.Text = Utility.FormatValue(quickLZCompressionSize);
+
+            lblCurrentPNG.Text = Utility.FormatValue(normalByteArrayPNG.Length);
+            lblCurrentGIF.Text = Utility.FormatValue(normalByteArrayGIF.Length);
+            lblCurrentJPG.Text = Utility.FormatValue(normalByteArrayJPG.Length);
+            lblCurrentBMP.Text = Utility.FormatValue(normalByteArrayBMP.Length);
+
+            lblQuickLZBMP.Text = Utility.FormatValue(QuickLZ.compress(normalByteArrayBMP,1).Length);
+            lblQuickLZJPG.Text = Utility.FormatValue(QuickLZ.compress(normalByteArrayJPG, 1).Length);
+            lblQuickLZGIF.Text = Utility.FormatValue(QuickLZ.compress(normalByteArrayGIF, 1).Length);
+            lblQuickLZPNG.Text = Utility.FormatValue(QuickLZ.compress(normalByteArrayPNG, 1).Length);
+            
             // Update PictureBox
             if (currentImage != null)
                 pbCurrentImage.BackgroundImage = currentImage;
         }
         private void GenerateValues(Image img)
         {
-            // Regular byte[]
-            byte[] normalByteArray = Utility.ImageToByteArray(img);
-            byteSize = normalByteArray.Length;
-            
-            // Quick LZ Compression
-            byte[] compressedByteArray = QuickLZ.compress(normalByteArray,1);
-            compressedByteSize = compressedByteArray.Length;
-            
-            UpdateValues();
+            // Create multiple byte arrays from various image types
+            normalByteArrayGIF = Utility.ImageToByteArrayGIF(img);
+            normalByteArrayPNG = Utility.ImageToByteArrayPNG(img);
+            normalByteArrayBMP = Utility.ImageToByteArrayBMP(img);
+            normalByteArrayJPG = Utility.ImageToByteArrayJPG(img);            
         }
     }
 }
